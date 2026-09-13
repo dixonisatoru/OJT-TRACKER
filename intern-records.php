@@ -239,9 +239,6 @@ if (isset($_SESSION["interns"])) {
                 $progress =
                     $intern->getProgress();
 
-                $objectType =
-                    get_class($intern);
-
                 ?>
 
 
@@ -286,31 +283,19 @@ if (isset($_SESSION["interns"])) {
                         </div>
 
 
-                        <!-- OJT TYPE -->
+                        <!--
+                            OJT TYPE
+                            Polymorphic call: same method,
+                            different label per subclass.
+                        -->
 
                         <span class="ojt-badge">
 
                             <?php
 
-                            if (
-                                $objectType ===
-                                "GovernmentOJT"
-                            ) {
-
-                                echo "Government OJT";
-
-                            } elseif (
-                                $objectType ===
-                                "PrivateCompanyOJT"
-                            ) {
-
-                                echo "Private Company OJT";
-
-                            } else {
-
-                                echo "NGO OJT";
-
-                            }
+                            echo htmlspecialchars(
+                                $intern->getOJTTypeLabel()
+                            );
 
                             ?>
 

@@ -58,76 +58,67 @@ $requiredHours = (int) $requiredHours;
 
 
 // ==================================================
-// VALIDATE HOURS
-// ==================================================
-
-if ($hoursRendered < 0) {
-
-    die("Hours rendered cannot be negative.");
-
-}
-
-if ($requiredHours <= 0) {
-
-    die("Required hours must be greater than zero.");
-
-}
-
-if ($hoursRendered > $requiredHours) {
-
-    die("Hours rendered cannot be greater than required hours.");
-
-}
-
-
-// ==================================================
 // CREATE THE CORRECT OJT OBJECT
+//
+// Hours validation now also happens inside the private
+// validateHours() method of the Intern class itself, so
+// object creation is wrapped in a try/catch. This is the
+// encapsulation boundary: the class protects its own
+// invariants instead of trusting the caller blindly.
 // ==================================================
 
-switch ($ojtType) {
+try {
 
-    case "government":
+    switch ($ojtType) {
 
-        $intern = new GovernmentOJT(
-            $name,
-            $studentId,
-            $company,
-            $hoursRendered,
-            $requiredHours
-        );
+        case "government":
 
-        break;
+            $intern = new GovernmentOJT(
+                $name,
+                $studentId,
+                $company,
+                $hoursRendered,
+                $requiredHours
+            );
 
-
-    case "private":
-
-        $intern = new PrivateCompanyOJT(
-            $name,
-            $studentId,
-            $company,
-            $hoursRendered,
-            $requiredHours
-        );
-
-        break;
+            break;
 
 
-    case "ngo":
+        case "private":
 
-        $intern = new NGOOJT(
-            $name,
-            $studentId,
-            $company,
-            $hoursRendered,
-            $requiredHours
-        );
+            $intern = new PrivateCompanyOJT(
+                $name,
+                $studentId,
+                $company,
+                $hoursRendered,
+                $requiredHours
+            );
 
-        break;
+            break;
 
 
-    default:
+        case "ngo":
 
-        die("Invalid OJT type selected.");
+            $intern = new NGOOJT(
+                $name,
+                $studentId,
+                $company,
+                $hoursRendered,
+                $requiredHours
+            );
+
+            break;
+
+
+        default:
+
+            die("Invalid OJT type selected.");
+
+    }
+
+} catch (InvalidArgumentException $e) {
+
+    die($e->getMessage());
 
 }
 
@@ -465,7 +456,7 @@ $_SESSION["interns"][] = [
 
 
         <!-- ================================================= -->
-        <!-- OOP TYPE -->
+        <!-- OOP TYPE (now via polymorphic method, not get_class) -->
         <!-- ================================================= -->
 
         <div class="progress-container">
@@ -481,10 +472,12 @@ $_SESSION["interns"][] = [
                 <?php
 
                 echo htmlspecialchars(
-                    get_class($intern)
+                    $intern->getOJTTypeLabel()
                 );
 
                 ?>
+
+                (<?php echo htmlspecialchars(get_class($intern)); ?>)
 
             </p>
 

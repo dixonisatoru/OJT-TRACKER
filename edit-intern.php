@@ -209,6 +209,13 @@ switch ($internData["type"]) {
 
         <p>
             Update the internship information for this intern.
+            Current type: <strong><?php
+
+                echo htmlspecialchars(
+                    $intern->getOJTTypeLabel()
+                );
+
+            ?></strong>
         </p>
 
     </section>

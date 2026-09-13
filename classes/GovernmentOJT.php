@@ -18,4 +18,9 @@ class GovernmentOJT extends Intern
             "OJT Training Plan"
         ];
     }
+
+    public function getOJTTypeLabel(): string
+    {
+        return "Government OJT";
+    }
 }

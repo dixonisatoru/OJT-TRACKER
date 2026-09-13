@@ -19,4 +19,9 @@ class PrivateCompanyOJT extends Intern
             "Company Orientation Form"
         ];
     }
+
+    public function getOJTTypeLabel(): string
+    {
+        return "Private Company OJT";
+    }
 }

@@ -543,9 +543,6 @@ if ($totalRequiredHours > 0) {
                 $requirements =
                     $intern->getRequirements();
 
-                $objectType =
-                    get_class($intern);
-
 
                 /*
                  * Get the saved requirement status
@@ -608,31 +605,22 @@ if ($totalRequiredHours > 0) {
                         </div>
 
 
-                        <!-- OJT TYPE -->
+                        <!--
+                            OJT TYPE
+                            Uses the polymorphic getOJTTypeLabel()
+                            method instead of checking get_class()
+                            manually. Calling the same method on
+                            different subclass objects produces a
+                            different label automatically.
+                        -->
 
                         <span class="ojt-badge">
 
                             <?php
 
-                            if (
-                                $objectType ===
-                                "GovernmentOJT"
-                            ) {
-
-                                echo "Government OJT";
-
-                            } elseif (
-                                $objectType ===
-                                "PrivateCompanyOJT"
-                            ) {
-
-                                echo "Private Company OJT";
-
-                            } else {
-
-                                echo "NGO OJT";
-
-                            }
+                            echo htmlspecialchars(
+                                $intern->getOJTTypeLabel()
+                            );
 
                             ?>
 

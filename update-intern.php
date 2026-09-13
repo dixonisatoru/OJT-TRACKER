@@ -76,33 +76,6 @@ $requiredHours =
 
 
 // ==================================================
-// VALIDATE HOURS
-// ==================================================
-
-if ($hoursRendered < 0) {
-
-    die("Hours rendered cannot be negative.");
-
-}
-
-
-if ($requiredHours <= 0) {
-
-    die("Required hours must be greater than zero.");
-
-}
-
-
-if ($hoursRendered > $requiredHours) {
-
-    die(
-        "Hours rendered cannot be greater than required hours."
-    );
-
-}
-
-
-// ==================================================
 // VALIDATE OJT TYPE
 // ==================================================
 
@@ -211,47 +184,60 @@ if (!$internFound) {
 
 // ==================================================
 // CREATE UPDATED OJT OBJECT
+//
+// Hours validation happens inside the private
+// validateHours() method of the Intern class, so this
+// is wrapped in a try/catch instead of re-checking the
+// same rules manually out here.
 // ==================================================
 
-switch ($ojtType) {
+try {
 
-    case "government":
+    switch ($ojtType) {
 
-        $intern = new GovernmentOJT(
-            $name,
-            $studentId,
-            $company,
-            $hoursRendered,
-            $requiredHours
-        );
+        case "government":
 
-        break;
+            $intern = new GovernmentOJT(
+                $name,
+                $studentId,
+                $company,
+                $hoursRendered,
+                $requiredHours
+            );
 
-
-    case "private":
-
-        $intern = new PrivateCompanyOJT(
-            $name,
-            $studentId,
-            $company,
-            $hoursRendered,
-            $requiredHours
-        );
-
-        break;
+            break;
 
 
-    case "ngo":
+        case "private":
 
-        $intern = new NGOOJT(
-            $name,
-            $studentId,
-            $company,
-            $hoursRendered,
-            $requiredHours
-        );
+            $intern = new PrivateCompanyOJT(
+                $name,
+                $studentId,
+                $company,
+                $hoursRendered,
+                $requiredHours
+            );
 
-        break;
+            break;
+
+
+        case "ngo":
+
+            $intern = new NGOOJT(
+                $name,
+                $studentId,
+                $company,
+                $hoursRendered,
+                $requiredHours
+            );
+
+            break;
+
+    }
+
+} catch (InvalidArgumentException $e) {
+
+    die($e->getMessage());
 
 }
 

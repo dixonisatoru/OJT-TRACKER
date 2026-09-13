@@ -2,6 +2,10 @@
 
 session_start();
 
+require_once 'classes/GovernmentOJT.php';
+require_once 'classes/PrivateCompanyOJT.php';
+require_once 'classes/NGOOJT.php';
+
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     header("Location: requirements.php");
     exit;
@@ -20,44 +24,50 @@ if (!isset($_SESSION["interns"])) {
 
 $internFound = false;
 
-foreach ($_SESSION["interns"] as &$intern) {
+foreach ($_SESSION["interns"] as &$savedIntern) {
 
-    if ($intern["studentId"] === $studentId) {
+    if ($savedIntern["studentId"] === $studentId) {
 
         $internFound = true;
 
         /*
-         * Get the requirements belonging to this intern's OJT type.
+         * Recreate the correct OJT subclass object so that
+         * we can call the polymorphic getRequirements()
+         * method, instead of duplicating each subclass's
+         * requirement list here with a switch statement.
+         * If a requirement list ever changes in a subclass
+         * file, this code automatically stays correct.
          */
-        switch ($intern["type"]) {
+        switch ($savedIntern["type"]) {
 
             case "government":
-                $requirements = [
-                    "Endorsement Letter",
-                    "Memorandum of Agreement",
-                    "Medical Certificate",
-                    "OJT Training Plan"
-                ];
+                $intern = new GovernmentOJT(
+                    $savedIntern["name"],
+                    $savedIntern["studentId"],
+                    $savedIntern["company"],
+                    $savedIntern["hoursRendered"],
+                    $savedIntern["requiredHours"]
+                );
                 break;
 
             case "private":
-                $requirements = [
-                    "Resume",
-                    "Endorsement Letter",
-                    "Memorandum of Agreement",
-                    "Medical Certificate",
-                    "Company Orientation Form"
-                ];
+                $intern = new PrivateCompanyOJT(
+                    $savedIntern["name"],
+                    $savedIntern["studentId"],
+                    $savedIntern["company"],
+                    $savedIntern["hoursRendered"],
+                    $savedIntern["requiredHours"]
+                );
                 break;
 
             case "ngo":
-                $requirements = [
-                    "Endorsement Letter",
-                    "Memorandum of Agreement",
-                    "Medical Certificate",
-                    "Volunteer Agreement",
-                    "NGO Orientation Form"
-                ];
+                $intern = new NGOOJT(
+                    $savedIntern["name"],
+                    $savedIntern["studentId"],
+                    $savedIntern["company"],
+                    $savedIntern["hoursRendered"],
+                    $savedIntern["requiredHours"]
+                );
                 break;
 
             default:
@@ -65,24 +75,26 @@ foreach ($_SESSION["interns"] as &$intern) {
         }
 
         /*
-         * Create the requirementsStatus array if it does not exist.
+         * Polymorphic call: the same method call produces
+         * a different requirement list depending on which
+         * subclass $intern actually is.
          */
-        $intern["requirementsStatus"] = [];
+        $requirements = $intern->getRequirements();
 
-        /*
-         * Save the status of every requirement.
-         */
+        $savedIntern["requirementsStatus"] = [];
+
         foreach ($requirements as $requirement) {
 
-            $intern["requirementsStatus"][$requirement] =
+            $savedIntern["requirementsStatus"][$requirement] =
                 in_array($requirement, $completedRequirements);
+
         }
 
         break;
     }
 }
 
-unset($intern);
+unset($savedIntern);
 
 if (!$internFound) {
     die("Intern record not found.");

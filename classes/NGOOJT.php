@@ -19,4 +19,9 @@ class NGOOJT extends Intern
             "NGO Orientation Form"
         ];
     }
+
+    public function getOJTTypeLabel(): string
+    {
+        return "NGO OJT";
+    }
 }
